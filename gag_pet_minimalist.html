@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gag Pet Order Form</title>
+  <style>
+    body {
+      background: linear-gradient(145deg, #e0eafc, #cfdef3);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select,
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(4px);
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .total {
+      font-size: 1.1em;
+      font-weight: bold;
+      margin: 10px 0 20px;
+      text-align: center;
+    }
+
+    #confirmation {
+      margin-top: 20px;
+      color: green;
+      font-weight: bold;
+      display: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐾 Gag Pet Order</h1>
+
+  <form id="orderForm">
+    <label for="Red Fox">Red Fox ($6)</label>
+    <input type="number" min="0" id="Red Fox" value="0">
+
+    <label for="Raccoon">Raccoon ($16)</label>
+    <input type="number" min="0" id="Raccoon" value="0">
+
+    <label for="Chicken Zombie">Chicken Zombie ($7)</label>
+    <input type="number" min="0" id="Chicken Zombie" value="0">
+
+    <label for="Mimic Octopus">Mimic Octopus ($10)</label>
+    <input type="number" min="0" id="Mimic Octopus" value="0">
+
+    <label for="2x T-Rex">2x T-Rex ($10 each, max 2)</label>
+    <input type="number" min="0" max="2" id="2x T-Rex" value="0">
+
+    <div class="total">Total Cost: $<span id="total">0</span></div>
+
+    <input type="text" id="roblox" placeholder="Roblox Username" required>
+    <input type="text" id="discord" placeholder="Discord Username" required>
+
+    <label for="payment">Payment Method</label>
+    <select id="payment">
+      <option value="Robux">Robux</option>
+      <option value="CashApp">CashApp</option>
+      <option value="Chicken Feed">Chicken Feed</option>
+    </select>
+
+    <button type="submit">Submit Order</button>
+  </form>
+
+  <div id="confirmation">✅ Order reviewed! Check your Discord DMs in 1–5 days.</div>
+
+  <script>
+    const prices = {
+      "Red Fox": 6,
+      "Raccoon": 16,
+      "Chicken Zombie": 7,
+      "Mimic Octopus": 10,
+      "2x T-Rex": 10
+    };
+
+    const inputs = ["Red Fox", "Raccoon", "Chicken Zombie", "Mimic Octopus", "2x T-Rex"];
+    function updateTotal() {
+      let total = 0;
+      inputs.forEach(id => {
+        const val = parseInt(document.getElementById(id).value) || 0;
+        total += val * prices[id];
+      });
+      document.getElementById("total").textContent = total;
+    }
+
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener("input", updateTotal);
+    });
+
+    document.getElementById("orderForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      let messageLines = [];
+      let total = 0;
+      inputs.forEach(id => {
+        const qty = parseInt(document.getElementById(id).value) || 0;
+        if (qty > 0) {
+          messageLines.push(`• ${qty} x ${id} ($${prices[id]})`);
+          total += qty * prices[id];
+        }
+      });
+
+      const payload = {
+        content: `🎉 **New Gag Pet Order!**
+${messageLines.join("\n")}
+🤖 **Roblox:** ${document.getElementById("roblox").value}
+💬 **Discord:** ${document.getElementById("discord").value}
+💰 **Payment:** ${document.getElementById("payment").value}
+💵 **Total:** $${total}`
+      };
+
+      await fetch("https://discord.com/api/webhooks/1389396158186786846/4bCFvRYyxCtYoJmH7MHmcwfPtRUKSzVmNRtHuqfzij8nH64lVPngcIsM18-r9iaeQF3w", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      document.getElementById("orderForm").reset();
+      updateTotal();
+      document.getElementById("confirmation").style.display = "block";
+    });
+  </script>
+</body>
+</html>
